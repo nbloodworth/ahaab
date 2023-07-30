@@ -1,0 +1,3 @@
+/home/bloodwnc/Data/Scripts/ahaab/tests/test_pdbs/HLA-A0201_20365.pdb
+/home/bloodwnc/Data/Scripts/ahaab/tests/test_pdbs/HLA-A0201_22262.pdb
+/home/bloodwnc/Data/Scripts/ahaab/tests/test_pdbs/HLA-A0201_24743.pdb
