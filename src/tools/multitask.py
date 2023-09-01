@@ -50,6 +50,8 @@ def batch_files(file_list):
         else:
             batch_list.append(file_list[i:i+batch_size])
 
+    formats.notice(f"Preparing to multitask featurization:")
+    formats.message(f"{len(batch_list)} batches created\n{batch_size} files per batch")
     return batch_list
 
 def recombine_features(batch_suffix):
@@ -83,11 +85,12 @@ def recombine_features(batch_suffix):
                 out_feature_data=pd.concat([out_feature_data,tmp_data],ignore_index=True)
                 os.remove(f"AHAAB_atom_features_{s}.csv")
 
+        formats.notice("Recombining featurized data from multitask operation")
         out_feature_data.to_csv(f"AHAAB_atom_features.csv",index=False)
 
         return out_feature_data
 
-def multiprocess_batches(batch_list, get_metadata=False):
+def multiprocess_batches(batch_list, feature_list, get_metadata=False):
     '''
     Usage:
     $ multiprocess_batches(*args,**kwargs)
@@ -95,8 +98,8 @@ def multiprocess_batches(batch_list, get_metadata=False):
     Positional arguments:
     > batch_list: List of file batches from
                   batch_files
-    > get_metadata: Flag to retrieve metadata from
-                    atom-atom pairings
+    > feature_list: List of ahaab features
+                    to generate
 
     Keyword arguments:
 
@@ -108,7 +111,7 @@ def multiprocess_batches(batch_list, get_metadata=False):
     batch_suffix=[str(i) for i in range(0,len(batch_list))]
     pool=multiprocessing.Pool(multiprocessing.cpu_count()-1)
     for d,suf in zip(batch_list,batch_suffix):
-        pool.apply_async(get_features_atom, (d,),dict(output_suffix=suf,toprint=False,get_metadata=get_metadata))
+        pool.apply_async(get_features_atom, (d,feature_list),dict(output_suffix=suf,toprint=False,get_metadata=get_metadata))
     pool.close()
     pool.join()
 
