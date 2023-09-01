@@ -61,7 +61,7 @@ def get_xyz(pdb_file):
     
     return xyz_data
 
-def get_hla_peptide_chains(xyz, keep_ligands=False):
+def get_hla_peptide_chains(xyz, keep_ligands=False, toprint=False):
     '''
     Usage:
     $ chains=get_hla_peptide_chains(*args,**kwargs)
@@ -91,11 +91,11 @@ def get_hla_peptide_chains(xyz, keep_ligands=False):
     elif chain1_resnum > chain2_resnum:
         hla_chain=chain1
         pep_chain=chain2
-        formats.message(f"Inferred peptide chain: {pep_chain}, {chain2_resnum} residues")
+        formats.message(f"Inferred peptide chain: {pep_chain}, {chain2_resnum} residues",toprint=toprint)
     else:
         hla_chain=chain2
         pep_chain=chain1
-        formats.message(f"Inferred peptide chain: {pep_chain}, {chain1_resnum} residues")
+        formats.message(f"Inferred peptide chain: {pep_chain}, {chain1_resnum} residues",toprint=toprint)
 
     return hla_chain, pep_chain
 

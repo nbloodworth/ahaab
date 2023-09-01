@@ -87,7 +87,6 @@ def get_features_atom(file_list,features,get_metadata=False,update_features=Fals
         # Initialize the temporary dataframe to hold feature data
         pdb_name=os.path.basename(pdb)[0:-4]
         pdb_features=pd.DataFrame(data=[pdb_name],columns=["PDB file name"])
-        pdb_metadata={"PDB Name":pdb_name}
         formats.notice(f"Assigning features to {i+1:>7}/{len(file_list):<7} model(s) ({pdb_name})")
         
         # Read the file as an rdkit molecule
@@ -105,7 +104,7 @@ def get_features_atom(file_list,features,get_metadata=False,update_features=Fals
         # Infer MHC-I and peptide chains based on chain length
         if len(xyz_mol["chain_id"].unique())>2:
             formats.warn(f"More than 2 chains in PDB file {pdb_name}. Attempting HLA and peptide chain assignments...",toprint=toprint)
-        chains=utils.get_hla_peptide_chains(xyz_mol)
+        chains=utils.get_hla_peptide_chains(xyz_mol,toprint=toprint)
         # Check correct chain assignment (get_hla_peptide_chains returns an error message in the output tuple if failed)
         if not chains[0]:
             error_description=chains[1]
@@ -154,99 +153,44 @@ def get_features_atom(file_list,features,get_metadata=False,update_features=Fals
                 resnum=["all"]
             # Retrieve the feature function:
             feature_func=getattr(atom_features, features["atom_feature"].iloc[idx])
-            # try:
-            tmp_features=feature_func(
-                pep_feat=pep_feat,
-                pep_mol=pep_mol,
-                hla_feat=hla_feat,
-                hla_mol=hla_mol,
-                xyz_mol=xyz_mol,
-                all_atom_dist=all_atom_dist,
-                bin_min=features["bin_min"].iloc[idx],
-                bin_max=features["bin_max"].iloc[idx],
-                bin_size=features["bin_size"].iloc[idx],
-                resnum=resnum,
-                get_metadata=get_metadata,
-                rdkit_mol=rdkit_mol,
-                toprint=toprint
-            )
-            pdb_features=pd.concat([pdb_features,tmp_features],axis=1)
-            # except:
-            #     error_description=f"Failed to featurize {pdb_name} with feature {features.iloc[idx]}"
-            #     error_log=pd.concat([error_log,pd.Series([pdb_name,error_description])])
-            #     formats.error(error_description)
-            #     featurization_error_flag=True
-            #     break
+            try:
+                tmp_features=feature_func(
+                    pep_feat=pep_feat,
+                    pep_mol=pep_mol,
+                    hla_feat=hla_feat,
+                    hla_mol=hla_mol,
+                    xyz_mol=xyz_mol,
+                    all_atom_dist=all_atom_dist,
+                    bin_min=features["bin_min"].iloc[idx],
+                    bin_max=features["bin_max"].iloc[idx],
+                    bin_size=features["bin_size"].iloc[idx],
+                    resnum=resnum,
+                    get_metadata=get_metadata,
+                    rdkit_mol=rdkit_mol,
+                    toprint=toprint
+                )
+                pdb_features=pd.concat([pdb_features,tmp_features],axis=1)
+            except:
+                error_description=f"Failed to featurize {pdb_name} with feature {features.iloc[idx]}"
+                error_log=pd.concat([error_log,pd.Series([pdb_name,error_description])])
+                formats.error(error_description)
+                featurization_error_flag=True
+                break
         
         if not featurization_error_flag:
             features_data=pd.concat([features_data,pdb_features])
         else:
             continue
 
-            
-        
-        # try:
-
-        #     # Hydrophobic pairings
-        #     formats.message("\x1b[2K",toprint=toprint, end="\r")
-        #     formats.message("Getting hydrophobic interactions...",toprint=toprint, end="\r")
-        #     hydrophobic_pairs=atom_features.atom_hydrophobic(pep_feat, pep_mol, hla_feat, hla_mol, xyz_mol, get_metadata=get_metadata)
-        #     pdb_features=pd.concat([pdb_features,hydrophobic_pairs[0]],axis=1)
-        #     pdb_metadata["hydrophobic"]=hydrophobic_pairs[1]
-
-        #     # Electrostatic interactions (culombic forces between atoms with partial charges)
-        #     formats.message("\x1b[2K",toprint=toprint, end="\r")
-        #     formats.message("Determining electrostatic interactions...",toprint=toprint, end="\r")
-        #     electrostatic_interactions=atom_features.atom_electrostatic(pep_feat, pep_mol, hla_feat, hla_mol, xyz_mol, get_metadata=get_metadata)
-        #     pdb_features=pd.concat([pdb_features,electrostatic_interactions[0]],axis=1)
-        #     pdb_metadata["electrostatic"]=electrostatic_interactions[1]
-
-        #     # VdW interactions
-        #     formats.message("\x1b[2K",toprint=toprint, end="\r")
-        #     formats.message("Calculating Lennard-Jones potential energies...",toprint=toprint, end="\r")
-        #     VdW_interactions=atom_features.atom_VdW(rdkit_mol, pep_mol, hla_mol, xyz_mol, get_metadata=get_metadata)
-        #     pdb_features=pd.concat([pdb_features,VdW_interactions[0]],axis=1)
-        #     pdb_metadata["Lennard-Jones"]=VdW_interactions[1]
-
-        #     # Aromatic interactions
-        #     # pi-stacking
-        #     formats.message("\x1b[2K",toprint=toprint, end="\r")
-        #     formats.message("Counting pi-pi interactions...",toprint=toprint, end="\r")
-        #     pipi_interactions=atom_features.atom_pipi(pep_feat, pep_mol, hla_feat, hla_mol, xyz_mol, get_metadata=get_metadata)
-        #     pdb_features=pd.concat([pdb_features,pipi_interactions[0]],axis=1)
-        #     pdb_metadata["pi-pi"]=pipi_interactions[1]
-
-        #     # cation-pi
-        #     formats.message("\x1b[2K",toprint=toprint, end="\r")
-        #     formats.message("Counting cation-pi interactions...",toprint=toprint, end="\r")
-        #     catpi_interactions=atom_features.atom_catpi(pep_feat, pep_mol, hla_feat, hla_mol, xyz_mol, get_metadata=get_metadata)
-        #     pdb_features=pd.concat([pdb_features,catpi_interactions[0]],axis=1)
-        #     pdb_metadata["cation-pi"]=catpi_interactions[1]
-
-        #     # Concatenate to growing features dataframe
-        #     features_data=pd.concat([features_data, pdb_features],ignore_index=True)
-
-            # Add metadata to list
-        #     metadata.append(pdb_metadata)
-
-        # except:
-        #     formats.error(f"\nError featurizing {pdb_name}")
-        #     continue
-
-        # ASCI control sequence to return to line 1 and delete contents.
-        # formats.message("\033[1A",toprint=toprint, end="\r")
-        # formats.message("\x1b[2K",toprint=toprint, end="\r")
-
     # Write the features and metadata to file(s)
-    formats.notice("Featurization complete!")
-    print(features_data)
-    sys.exit()
+    formats.notice("Featurization complete!",toprint=toprint)
     if output_suffix:
         outfile_name=os.path.abspath("AHAAB_atom_features_"+output_suffix+".csv")
+        errorlog_filename=os.path.abspath("AHAAB_atom_features_error"+output_suffix+".log")
         metadata_filename=os.path.abspath("AHAAB_atom_features_metadata_"+output_suffix+".json")
-
     else:
         outfile_name=os.path.abspath("AHAAB_atom_features.csv")
+        errorlog_filename=os.path.abspath("AHAAB_atom_features_error.log")
         metadata_filename=os.path.abspath("AHAAB_atom_features_metadata.json")
 
     formats.message(f"Features written to {outfile_name}",toprint=toprint)
@@ -256,5 +200,9 @@ def get_features_atom(file_list,features,get_metadata=False,update_features=Fals
         formats.message(f"Feature metadata written to {metadata_filename}",toprint=toprint)
         with open(metadata_filename,"w") as mf:
             json.dump(metadata,mf)
+    
+    if not error_log.empty:
+        error_log.to_csv(errorlog_filename,index=False)
+        formats.message(f"Error log written to {errorlog_filename}")
 
     return features_data

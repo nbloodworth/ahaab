@@ -146,15 +146,13 @@ if args.featurize:
             formats.error("Multitasking featurization currently only functions on Linux machines")
         else:
             batches=multitask.batch_files(file_list)
-            features=multitask.multiprocess_batches(batches,get_metadata=args.get_metadata)
+            features=multitask.multiprocess_batches(batches,feature_list[0],get_metadata=args.get_metadata)
     # Proceed with featurization only if a valid feature list was created with user input
     elif not feature_list[1]:
         features=get_features_atom(file_list,feature_list[0],get_metadata=args.get_metadata)
-    else:
-        features=False
     # Commit featurized data to ahaab/data if user requests
-    if file_list and args.update_features:
-        manage_data.update_features(features)
+    if file_list and args.commit_features:
+        manage_data.commmit_features(features)
 
 # Create testing/training datasets from feature data and train the model(s):
 elif args.train:
