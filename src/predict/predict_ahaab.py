@@ -12,9 +12,9 @@ Submodule list:
 '''
 # AHAAB imports
 from tools import formats
-from tools.retrieve_data import standardize_feature_data
-from tools.validate_input import validate_predict_input
-from predict.classifiers import AhaabAtomClassifier
+from tools.utils import standardize_feature_data
+from tools.handle_input import handle_predict_input
+from predict.classifiers import AhaabAtomClassifierPKD, AhaabAtomClassifierBinder
 
 # pytorch imports
 import torch

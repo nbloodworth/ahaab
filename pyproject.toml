@@ -16,6 +16,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+  "pandas >= 2.0.3",
+  "rdkit",
+  "numpy >= 1.25.0",
+  "torch"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/nbloodworth/ahaab"

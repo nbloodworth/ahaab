@@ -48,12 +48,15 @@ Training the model:
                --pkd <column_heading>
 
     By default, AHAAB splits the features into
-    5 non-overlapping testing/training datasets.
-    Use the --kfold flag to change this behavior.
+    5 non-overlapping testing/training datasets
+    of approximately equal size. Use the --kfold 
+    flag to change this behavior. Set --kfold to
+    0 in order to train the model on the entire
+    featurized dataset.
 
     $ ahaab.py --train ahaab_atom_features.csv \
                --pkd pkd_values.csv \
-               --kfold 1
+               --kfold 0
 
 Predicting pKd values:
 
@@ -68,7 +71,7 @@ ahaab/src
 ├──predict/
 |   └──classifiers.py
 ├──tools/
-|   ├──validate_input.py
+|   ├──handle_input.py
 |   ├──retrieve_data.py
 |   ├──multitask.py
 |   └──formats.py
@@ -80,9 +83,10 @@ ahaab/src
 
 # AHAAB module imports
 from features.get_features import get_features_atom
-from tools.validate_input import validate_featurize_input
-from tools.validate_input import validate_training_input
-from tools.validate_input import validate_predict_input
+from tools.handle_input import handle_featurize_input
+from tools.handle_input import handle_training_input
+from tools.handle_input import handle_predict_input
+from tools.handle_input import check_feature_list
 from tools import multitask
 from tools import formats
 from data import manage_data
@@ -101,10 +105,13 @@ parser = argparse.ArgumentParser(description="AHAAB, an artificial neural networ
 # === Featurize ===
 # Mandatory
 parser.add_argument("-f","--featurize", nargs=1, default=False, help="Creates a file of atom-based features from one or more peptide-MHC-I PDB models")
-# Options
-parser.add_argument("-fm","--multitask", action="store_true", default=False, help="Featurizes complexes simultaneously")
-parser.add_argument("-fg","--get_metadata", action="store_true", default=False, help="Retrieve metadata for individual atom pairings and write to .json file (CAUTION: for many complexes, this file can be quite large)")
-parser.add_argument("-ff","--update_features", action="store_true", default=False, help="Commit feature data to ahaab/data for use in making predictions")
+# Optional:
+parser.add_argument("--feature_list", nargs="*", default=["default"], help="A file or command-line string of features to generate. Pass this flag without arguments to generate an example feature file")
+parser.add_argument("--update_features", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "features", "AHAAB_atom_features.csv"))], help="Update an existing AHAAB feature data file with new features (defaults to AHAAB reference feature data stored in ahaab/src/data/features)")
+parser.add_argument("--multitask", action="store_true", default=False, help="Featurizes complexes simultaneously")
+parser.add_argument("--get_metadata", action="store_true", default=False, help="Retrieve metadata for individual atom pairings and write to .json file (CAUTION: for many complexes, this file can be quite large)")
+parser.add_argument("--commit_features", action="store_true", default=False, help="Commit feature data to ahaab/data for use in making predictions")
+
 
 # === Make training and testing datasets ===
 # Mandatory
@@ -129,28 +136,35 @@ args=parser.parse_args()
 
 # Creating feature representations from PDB models:
 if args.featurize:
-    file_list=validate_featurize_input(args.featurize[0])
+    file_list=handle_featurize_input(args.featurize[0])
+    feature_list=check_feature_list(args.feature_list)
     if not file_list:
         formats.error("--featurize flag passed but no models found to featurize!")
     # Check if multitasking
-    elif args.multitask:
-        batches=multitask.batch_files(file_list)
-        features=multitask.multiprocess_batches(batches,get_metadata=args.get_metadata)
+    elif args.multitask and not feature_list[1]:
+        if os.name=="nt":
+            formats.error("Multitasking featurization currently only functions on Linux machines")
+        else:
+            batches=multitask.batch_files(file_list)
+            features=multitask.multiprocess_batches(batches,get_metadata=args.get_metadata)
+    # Proceed with featurization only if a valid feature list was created with user input
+    elif not feature_list[1]:
+        features=get_features_atom(file_list,feature_list[0],get_metadata=args.get_metadata)
     else:
-        features=get_features_atom(file_list,get_metadata=args.get_metadata)
+        features=False
     # Commit featurized data to ahaab/data if user requests
     if file_list and args.update_features:
         manage_data.update_features(features)
 
 # Create testing/training datasets from feature data and train the model(s):
-if args.train:
-    # Return a list of files passed by the user
-    train_test_files=validate_training_input(args.train[0],pkd_values=args.pkd[0],k_fold=args.kfold[0])
+elif args.train:
+    # Return a list of datasets divided into train/test pairs
+    ahaab_dataset=handle_training_input(args.train[0],args.kfold[0], pkd_values=args.pkd[0])
     if args.skip_train:
         formats.message("Argument --skip_train passed; train/test datasets created, but model(s) not trained.")
-    elif train_test_files:
+    elif ahaab_dataset:
         # Return pytorch models
-        model_filenames=train_ahaab.train_ahaab_atom(train_test_files)
+        model_filenames=train_ahaab.train_ahaab_atom(ahaab_dataset)
         # Commit weights to ahaab/data if user requests
         if args.update_weights:
             if args.k_fold[0]>1:
@@ -159,7 +173,7 @@ if args.train:
                 manage_data.update_weights(model_filenames)
 
 # Make a prediction
-if args.predict:
-    feature_data=validate_predict_input(args.predict[0])
+elif args.predict:
+    feature_data=handle_predict_input(args.predict[0])
     if feature_data:
         predict_ahaab.predict_ahaab_atom(feature_data[0], feature_data[1], args.weights[0], args.reference_features[0])
