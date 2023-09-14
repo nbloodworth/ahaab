@@ -1,0 +1,4 @@
+# Tests
+tests/*
+# Ignore the (large) AHAAB features file
+data/features/AHAAB_atom_features.csv
