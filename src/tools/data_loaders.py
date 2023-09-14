@@ -2,13 +2,22 @@
 AHAAB data_loaders submodule
 Part of the AHAAB tools module
 
+<<<<<<< HEAD
 ahaab/src/
 └──tools/
+=======
+ahaab/
+└──tools
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
     └──data_loaders.py
 
 Submodule list:
     
+<<<<<<< HEAD
     AhaabAtomDataset
+=======
+    === AhaabAtomDataset ===
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 '''
 
 # PyTorch
@@ -19,6 +28,7 @@ from torch import tensor
 # Python base libraries
 
 class AhaabAtomDataset(Dataset):
+<<<<<<< HEAD
     '''
     A custom dataset class that inherits the properties of pytorch Dataset.
 
@@ -29,6 +39,8 @@ class AhaabAtomDataset(Dataset):
     > pkd: pandas dataframe with a single column, where each value corresponds
       to a label to the corresponding row in feature_data
     '''
+=======
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
     # Custom dataset class (inherets pytorch Dataset). Takes in two dataframes: one of feature data and one of pkd values. Returns a pytroch Dataset object that can then be loaded into a DataLoader. 
 
     # Feature data includes 

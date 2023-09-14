@@ -2,8 +2,13 @@
 AHAAB utils submodule
 Part of the AHAAB tools module
 
+<<<<<<< HEAD
 ahaab/src/
 └──tools/
+=======
+ahaab/
+└──tools
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
     └──utils.py
 
 Submodule list:
@@ -24,10 +29,17 @@ import pandas as pd
 import numpy as np
 
 # Python base libraries
+<<<<<<< HEAD
 import os
 import warnings
 warnings.filterwarnings("ignore")
 import sys
+=======
+import sys
+import os
+import warnings
+warnings.filterwarnings("ignore")
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 
 def get_xyz(pdb_file):
     '''
@@ -204,11 +216,18 @@ def standardize_feature_data(toscale,scaleto=None):
     if rows<=1 or len(rows_cols)<2:
         formats.error("Unable to scale feature data without a reference!")
         return np.empty()
+<<<<<<< HEAD
 
     # Standardize the data (z=(x-u)/stdev)
     scaleto=np.nan_to_num(scaleto)
     toscale=np.nan_to_num(toscale)
 
+=======
+    else:
+        cols=rows_cols[1]
+
+    # Standardize the data (z=(x-u)/stdev)
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
     scaled_data=np.nan_to_num((toscale-np.mean(scaleto,axis=0))/np.std(scaleto,axis=0))
 
     return scaled_data

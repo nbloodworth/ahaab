@@ -8,12 +8,20 @@ ahaab/
 
 Submodule list:
 
+<<<<<<< HEAD
     get_features_atom
+=======
+    === get_features_atom ===
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 '''
 
 # AHAAB module imports
 from tools import utils
 from tools import formats
+<<<<<<< HEAD
+=======
+from tools.handle_input import handle_featurize_input
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 from features import atom_features
 
 # rdkit imports
@@ -29,6 +37,15 @@ import pandas as pd
 # Python base libraries
 import os
 import json
+<<<<<<< HEAD
+=======
+from pathlib import Path
+import sys
+
+def get_features_for_residue():
+
+    return
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 
 def get_features_atom(file_list,features,get_metadata=False,update_features=False,toprint=True,output_suffix=""):
     '''

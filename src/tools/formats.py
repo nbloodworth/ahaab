@@ -2,15 +2,25 @@
 AHAAB formats submodule
 Part of the AHAAB tools module
 
+<<<<<<< HEAD
 ahaab/src
+=======
+ahaab/
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 └──tools
     └──formats.py
 
 Submodule list:
 
+<<<<<<< HEAD
 	notice
 	warn
 	error
+=======
+	=== notice ===
+	===  warn  ===
+	=== error  ===
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 '''
 
 # Define some default values that can be called for quick custom formatting

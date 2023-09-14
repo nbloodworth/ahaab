@@ -8,6 +8,7 @@ ahaab/
 
 Submodule list:
 
+<<<<<<< HEAD
     atom_hbonds
     atom_hydrophobic
     atom_electrostatic
@@ -24,6 +25,12 @@ Variables:
       the entire peptide ("pep")
 '''
 # AHAAB import
+=======
+    === atom_hbonds ===
+'''
+# AHAAB import
+from tools import utils
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 from tools import formats
 
 # rdkit
@@ -35,6 +42,12 @@ import pandas as pd
 # numpy
 import numpy as np
 
+<<<<<<< HEAD
+=======
+# python
+import sys
+
+>>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 bin_default={
     "bin_min":0,
     "bin_max":5,
