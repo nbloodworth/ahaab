@@ -8,11 +8,7 @@ ahaab/src/
 
 Submodule list:
     
-<<<<<<< HEAD
     predict_ahaab_atom
-=======
-    === predict_ahaab_atom ===
->>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 '''
 # AHAAB imports
 from tools import formats

@@ -1,33 +1,21 @@
 '''
 AHAAB classifier submodule
-<<<<<<< HEAD
 Part of the AHAAB predict module
 
 ahaab/src/
 └──predict/
-=======
-Part of the AHAAB test module
-
-ahaab/
-└──predict
->>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
     └──classifiers.py
 
 Submodule list:
     
-<<<<<<< HEAD
     AhaabAtomClassifierPKD
     AhaabAtomClassifierBinder
-=======
-    === AhaabAtomClassifier ===
->>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
 '''
 
 import torch.nn as nn
 
 class AhaabAtomClassifierPKD(nn.Module):
     '''
-<<<<<<< HEAD
     AHAAB class defining the neural network for atom-based classification 
     (regression classifier to predict pKd values).
 
@@ -39,12 +27,6 @@ class AhaabAtomClassifierPKD(nn.Module):
       variable "feature size".
     '''
     def __init__(self,feature_size,hidden_layer1=512,hidden_layer2=256):
-=======
-    AHAAB class defining the neural network
-    for atom-based classification (regression classifier to predict pKd values)
-    '''
-    def __init__(self,feature_size=140,hidden_layer1=256,hidden_layer2=128):
->>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
         super().__init__()
         self.hidden1=nn.Linear(feature_size,hidden_layer1)
         self.act1=nn.ReLU()
@@ -61,7 +43,6 @@ class AhaabAtomClassifierPKD(nn.Module):
 class AhaabAtomClassifierBinder(nn.Module):
     '''
     AHAAB class defining the neural network for discriminating binders
-<<<<<<< HEAD
     from non-binders (binary classifier returning value 0<=p<=1).
 
     Usage:
@@ -72,11 +53,6 @@ class AhaabAtomClassifierBinder(nn.Module):
       variable "feature size".
     '''
     def __init__(self,feature_size,hidden_layer1=512,hidden_layer2=256):
-=======
-    from non-binders (binary classifier returning value 0p<=1)
-    '''
-    def __init__(self,feature_size=140,hidden_layer1=256,hidden_layer2=128):
->>>>>>> 4aaaf06f474a91f00483a2a78237897414a871db
         super().__init__()
         self.hidden1=nn.Linear(feature_size,hidden_layer1)
         self.act1=nn.ReLU()
