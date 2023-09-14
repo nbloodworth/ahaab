@@ -107,7 +107,7 @@ parser = argparse.ArgumentParser(description="AHAAB, an artificial neural networ
 parser.add_argument("-f","--featurize", nargs=1, default=False, help="Creates a file of atom-based features from one or more peptide-MHC-I PDB models")
 # Optional:
 parser.add_argument("--feature_list", nargs="*", default=["default"], help="A file or command-line string of features to generate. Pass this flag without arguments to generate an example feature file")
-parser.add_argument("--update_features", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "features", "AHAAB_atom_features.csv"))], help="Update an existing AHAAB feature data file with new features (defaults to AHAAB reference feature data stored in ahaab/src/data/features)")
+parser.add_argument("--update_features", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "features", "AHAAB_atom_features.csv"))], help="Update an existing AHAAB feature data file with new features (file to update defaults to AHAAB reference feature data stored in ahaab/src/data/features)")
 parser.add_argument("--multitask", action="store_true", default=False, help="Featurizes complexes simultaneously")
 parser.add_argument("--get_metadata", action="store_true", default=False, help="Retrieve metadata for individual atom pairings and write to .json file (CAUTION: for many complexes, this file can be quite large)")
 parser.add_argument("--commit_features", action="store_true", default=False, help="Commit feature data to ahaab/data for use in making predictions")
@@ -117,17 +117,17 @@ parser.add_argument("--commit_features", action="store_true", default=False, hel
 # Mandatory
 parser.add_argument("-t","--train", nargs=1, default=False, help="Create training and testing datasets from vectorized feature data, and train classifier")
 # Options
-parser.add_argument("-tp","--pkd", nargs=1, default=["pkd"], help="Key file with file names and known pKd values, or column heading with pkd values in vectorized features")
-parser.add_argument("-tk","--kfold", nargs=1, type=int, default=[1], help="Number of training/testing sets to create for cross-validation")
-parser.add_argument("-ts","--skip_train", action="store_true", default=False, help="Make testing and training datasets only without generating new network weights")
-parser.add_argument("-tw","--update_weights", action="store_true", default=False, help="Update model weights to ahaab/data for use in making predictions")
+parser.add_argument("--pkd", nargs=1, default=["pkd"], help="Key file with file names and known pKd values, or column heading with pkd values in vectorized features")
+parser.add_argument("--kfold", nargs=1, type=int, default=[1], help="Number of training/testing sets to create for cross-validation")
+parser.add_argument("--skip_train", action="store_true", default=False, help="Make testing and training datasets only without generating new network weights")
+parser.add_argument("--update_weights", action="store_true", default=False, help="Update model weights to ahaab/data for use in making predictions")
 
 # === Making predictions ===
 # Mandatory
 parser.add_argument("-p","--predict", nargs=1, default=False, help="Predict pKd values from an AHAAB features file")
-parser.add_argument("-pp", "--predict_pdb", nargs=1, default=False, help="Predict pKd values from PDB file(s)")
-parser.add_argument("-pw", "--weights", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "weights", "AHAAB_atom_classifier.pt"))], help="Location of trained pytorch model and model weights")
-parser.add_argument("-pr", "--reference_features", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "features", "AHAAB_atom_features.csv"))], help="Location of reference features file for standardizing input data")
+parser.add_argument("--predict_pdb", nargs=1, default=False, help="Predict pKd values from PDB file(s)")
+parser.add_argument("--weights", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "weights", "AHAAB_atom_classifier.pt"))], help="Location of trained pytorch model and model weights")
+parser.add_argument("--reference_features", nargs=1, default=[os.path.abspath(os.path.join(Path(__file__).parents[0], "data", "features", "AHAAB_atom_features.csv"))], help="Location of reference features file for standardizing input data")
 
 # ======================================================================
 
@@ -157,12 +157,18 @@ if args.featurize:
 # Create testing/training datasets from feature data and train the model(s):
 elif args.train:
     # Return a list of datasets divided into train/test pairs
-    ahaab_dataset=handle_training_input(args.train[0],args.kfold[0], pkd_values=args.pkd[0])
+    training_input=handle_training_input(
+        args.train[0],
+        args.kfold[0],
+        pkd_values=args.pkd[0])
     if args.skip_train:
         formats.message("Argument --skip_train passed; train/test datasets created, but model(s) not trained.")
-    elif ahaab_dataset:
+    elif training_input:
         # Return pytorch models
-        model_filenames=train_ahaab.train_ahaab_atom(ahaab_dataset)
+        model_filenames=train_ahaab.train_ahaab_atom(
+            ahaab_dataset=training_input[0],
+            num_features=training_input[1]
+            )
         # Commit weights to ahaab/data if user requests
         if args.update_weights:
             if args.k_fold[0]>1:

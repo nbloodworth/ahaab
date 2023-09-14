@@ -11,7 +11,6 @@ Submodule list:
     === atom_hbonds ===
 '''
 # AHAAB import
-from tools import utils
 from tools import formats
 
 # rdkit
@@ -22,9 +21,6 @@ import pandas as pd
 
 # numpy
 import numpy as np
-
-# python
-import sys
 
 bin_default={
     "bin_min":0,

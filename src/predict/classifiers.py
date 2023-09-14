@@ -18,7 +18,7 @@ class AhaabAtomClassifierPKD(nn.Module):
     AHAAB class defining the neural network
     for atom-based classification (regression classifier to predict pKd values)
     '''
-    def __init__(self,feature_size=140,hidden_layer1=256,hidden_layer2=128):
+    def __init__(self,feature_size,hidden_layer1=512,hidden_layer2=256):
         super().__init__()
         self.hidden1=nn.Linear(feature_size,hidden_layer1)
         self.act1=nn.ReLU()
@@ -35,9 +35,9 @@ class AhaabAtomClassifierPKD(nn.Module):
 class AhaabAtomClassifierBinder(nn.Module):
     '''
     AHAAB class defining the neural network for discriminating binders
-    from non-binders (binary classifier returning value 0p<=1)
+    from non-binders (binary classifier returning value 0<=p<=1)
     '''
-    def __init__(self,feature_size=140,hidden_layer1=256,hidden_layer2=128):
+    def __init__(self,feature_size,hidden_layer1=512,hidden_layer2=256):
         super().__init__()
         self.hidden1=nn.Linear(feature_size,hidden_layer1)
         self.act1=nn.ReLU()

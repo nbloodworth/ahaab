@@ -24,10 +24,10 @@ import pandas as pd
 import numpy as np
 
 # Python base libraries
-import sys
 import os
 import warnings
 warnings.filterwarnings("ignore")
+import sys
 
 def get_xyz(pdb_file):
     '''
@@ -204,10 +204,11 @@ def standardize_feature_data(toscale,scaleto=None):
     if rows<=1 or len(rows_cols)<2:
         formats.error("Unable to scale feature data without a reference!")
         return np.empty()
-    else:
-        cols=rows_cols[1]
 
     # Standardize the data (z=(x-u)/stdev)
+    scaleto=np.nan_to_num(scaleto)
+    toscale=np.nan_to_num(toscale)
+
     scaled_data=np.nan_to_num((toscale-np.mean(scaleto,axis=0))/np.std(scaleto,axis=0))
 
     return scaled_data

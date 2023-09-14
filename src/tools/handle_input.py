@@ -75,7 +75,7 @@ def handle_featurize_input(input_data):
 
     return file_list
 
-def handle_training_input(input_data, k_fold, pkd_values="pkd"):
+def handle_training_input(input_data, k_fold, pkd_values="pkd", train_all=False):
     '''
     Usage:
     $ handle_training_input(*args)
@@ -90,16 +90,20 @@ def handle_training_input(input_data, k_fold, pkd_values="pkd"):
                   same index order as feature-level data,
                   or the column name in the feature-level
                   data that contains pkd/Kd values.
+    > train_all:  Boolean to indicate if model should be
+                  trained with all available data.
 
     Outputs:
     > List of tuples with the following format:
-        [ ( training_dataset, training_index, testing_dataset, testing_index)...] --> includes k_fold tuples total.
+        [(training_dataset, training_index, testing_dataset, testing_index)...] --> includes k_fold tuples total.
         training_dataset: pytorch dataset with data used to train
         model for that iteration.
         testing_dataset: pytorch dataset used to test model.
         "_index" values can be used to cross-reference actual pKd
         values from the original dataset labels for accuracy 
         correlation.
+    > Integer indicating the number of features in the featurized
+      dataset. Passed to train_ahaab.
     '''
 
     input_data=os.path.abspath(input_data)
@@ -126,7 +130,7 @@ def handle_training_input(input_data, k_fold, pkd_values="pkd"):
                 return
             # Test following scenarios:
             if len(pkd.columns)>1:
-                # File data has more than one column. If so, check if column label is present - if so, take those values. If not, take column 0 by default. MAke case invariant to be generous and ensure we find a likely match.
+                # File data has more than one column. If so, check if column label is present - if so, take those values. If not, take column 0 by default. Make case invariant to be generous and ensure we find a likely match.
                 if "pkd" not in [x.lower() for x in pkd.columns.tolist()]:
                     formats.warning(f"More than 1 column of data found in file containing pKd values, and no label for 'pKd' found. Will use first column by default.")
                     pkd=pkd.iloc[:,0]
@@ -138,6 +142,16 @@ def handle_training_input(input_data, k_fold, pkd_values="pkd"):
         pkd=feature_data[pkd_values]
         feature_data.drop(labels=pkd_values,inplace=True)
 
+    # Now remove any nan pKd values and corresponding feature data rows:
+    if pkd.isna().any().values[0]:
+        bad_features=len(feature_data[pkd.isna().values])
+        feature_data=feature_data[~pkd.isna().values]
+        feature_data=feature_data.reindex(
+            labels=range(0,len(feature_data)),
+            axis=0
+        )
+        pkd=pkd[~pkd.isna().values]
+        print(f"pKd values missing for {bad_features} featurized peptide/HLA complexes. Vectors removed from training set(s)")
     # Check for a valid value for k_fold:
     if k_fold<1 or k_fold>=len(feature_data):
         formats.error(f"User specified {k_fold}-fold training/testing splits for k-fold cross validation. k must be an integer >=1 and less than the size of the dataset.")
@@ -146,23 +160,45 @@ def handle_training_input(input_data, k_fold, pkd_values="pkd"):
     # Now we split into train/test datasets.
     # Create our index of random values that effectivley assigns each row to a group for testing/training
     # Testing and training features are standardized to each training set.
-    kfold_idx=np.random.randint(0,high=k_fold,size=len(feature_data))
+    if train_all:
+        k_fold=1
+        kfold_idx=np.zeros(len(feature_data))+1
+    else:
+        kfold_idx=np.random.randint(0,high=k_fold,size=len(feature_data))
     train_test_groups=[]
     feature_labels=feature_data.iloc[:,1:].columns.tolist()
+    num_features=len(feature_labels)
     print(f"Creating {k_fold} training/testing datasets...")
     print("{:^7}{:^12}{:^12}{:^12}".format("Set #","Train size","Test size","Total"))
+    # For every testing group, create datasets for both the testing group and the training group by using the kfold_idx variable and masking based on indexed positions in the features dataframe. This method will produce k_fold non-overlapping testing sets (training data may overlap, but testing data will not).
     for k in range(0,k_fold):
         msk=kfold_idx==k
-        train_data_std=pd.DataFrame(standardize_feature_data(feature_data.iloc[:,1:][~msk].to_numpy()),columns=feature_labels)
+        train_data_std=pd.DataFrame(
+            standardize_feature_data(feature_data.iloc[:,1:][~msk].to_numpy()),
+            columns=feature_labels
+            )
         train_group=AhaabAtomDataset(train_data_std,pkd[~msk])
         train_index=pkd[~msk].index
-        test_data_std=pd.DataFrame(standardize_feature_data(feature_data.iloc[:,1:][msk].to_numpy()),columns=feature_labels)
-        test_group=AhaabAtomDataset(test_data_std,pkd[msk])
-        test_index=pkd[msk].index
-        train_test_groups.append((train_group,train_index,test_group,test_index))
+        if not train_all:
+            test_data_std=pd.DataFrame(
+                standardize_feature_data(feature_data.iloc[:,1:][msk].to_numpy()),
+                columns=feature_labels
+                )
+            test_group=AhaabAtomDataset(test_data_std,pkd[msk])
+            test_index=pkd[msk].index
+        else:
+            test_group=[]
+            test_index=[]
+
+        train_test_groups.append(
+            (train_group,
+             train_index,
+             test_group,
+             test_index)
+            )
         print(f"{k:^7}{len(pkd[~msk]):^12}{len(pkd[msk]):^12}{len(pkd[~msk])+len(pkd[msk]):^12}")
 
-    return train_test_groups
+    return train_test_groups,num_features
 
 def handle_predict_input(input_data,test=True):
     '''
