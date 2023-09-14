@@ -70,7 +70,7 @@ def commit_weights(model_filenames):
     Keyword arguments:
 
     Outputs:
-    > Writes the file 'AHAAB_atom_classifier.pt' to 
+    > Writes the file 'AHAAB_atom_classifier.pth' to 
       ahaab/src/data/weights. If the file exists, will
       abort.
     '''

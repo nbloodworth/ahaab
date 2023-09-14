@@ -1,22 +1,30 @@
 '''
 AHAAB classifier submodule
-Part of the AHAAB test module
+Part of the AHAAB predict module
 
-ahaab/
-└──predict
+ahaab/src/
+└──predict/
     └──classifiers.py
 
 Submodule list:
     
-    === AhaabAtomClassifier ===
+    AhaabAtomClassifierPKD
+    AhaabAtomClassifierBinder
 '''
 
 import torch.nn as nn
 
 class AhaabAtomClassifierPKD(nn.Module):
     '''
-    AHAAB class defining the neural network
-    for atom-based classification (regression classifier to predict pKd values)
+    AHAAB class defining the neural network for atom-based classification 
+    (regression classifier to predict pKd values).
+
+    Usage:
+
+    classifier=AhaabAtomClassifierPKD(feature_size)
+
+    > Produces a neural network with input feature size defined by the input
+      variable "feature size".
     '''
     def __init__(self,feature_size,hidden_layer1=512,hidden_layer2=256):
         super().__init__()
@@ -35,7 +43,14 @@ class AhaabAtomClassifierPKD(nn.Module):
 class AhaabAtomClassifierBinder(nn.Module):
     '''
     AHAAB class defining the neural network for discriminating binders
-    from non-binders (binary classifier returning value 0<=p<=1)
+    from non-binders (binary classifier returning value 0<=p<=1).
+
+    Usage:
+
+    classifier=AhaabAtomClassifierBinder(feature_size)
+
+    > Produces a neural network with input feature size defined by the input
+      variable "feature size".
     '''
     def __init__(self,feature_size,hidden_layer1=512,hidden_layer2=256):
         super().__init__()

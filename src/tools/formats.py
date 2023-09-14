@@ -2,15 +2,15 @@
 AHAAB formats submodule
 Part of the AHAAB tools module
 
-ahaab/
+ahaab/src
 └──tools
     └──formats.py
 
 Submodule list:
 
-	=== notice ===
-	===  warn  ===
-	=== error  ===
+	notice
+	warn
+	error
 '''
 
 # Define some default values that can be called for quick custom formatting

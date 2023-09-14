@@ -7,10 +7,10 @@ ahaab/src/
     └──handle_input.py
 
 Submodule list:
-    === handle_featurize_input ===
-    === handle_training_input  ===
-    ===  handle_predict_input  ===
-    ===   check_feature_list   ===
+    handle_featurize_input
+    handle_training_input  
+    handle_predict_input  
+    check_feature_list   
 '''
 # AHAAB libraries
 from tools import formats
@@ -30,7 +30,6 @@ import numpy as np
 from pathlib import Path
 import os
 from inspect import getmembers,isfunction
-import sys
 
 def handle_featurize_input(input_data):
     '''
@@ -75,7 +74,7 @@ def handle_featurize_input(input_data):
 
     return file_list
 
-def handle_training_input(input_data, k_fold, pkd_values="pkd", train_all=False):
+def handle_training_input(input_data, k_fold, pkd_values="pkd"):
     '''
     Usage:
     $ handle_training_input(*args)
@@ -90,8 +89,6 @@ def handle_training_input(input_data, k_fold, pkd_values="pkd", train_all=False)
                   same index order as feature-level data,
                   or the column name in the feature-level
                   data that contains pkd/Kd values.
-    > train_all:  Boolean to indicate if model should be
-                  trained with all available data.
 
     Outputs:
     > List of tuples with the following format:
@@ -160,11 +157,13 @@ def handle_training_input(input_data, k_fold, pkd_values="pkd", train_all=False)
     # Now we split into train/test datasets.
     # Create our index of random values that effectivley assigns each row to a group for testing/training
     # Testing and training features are standardized to each training set.
-    if train_all:
-        k_fold=1
+    elif k_fold==1:
+        train_all=True
         kfold_idx=np.zeros(len(feature_data))+1
     else:
+        train_all=False
         kfold_idx=np.random.randint(0,high=k_fold,size=len(feature_data))
+    
     train_test_groups=[]
     feature_labels=feature_data.iloc[:,1:].columns.tolist()
     num_features=len(feature_labels)

@@ -150,9 +150,6 @@ def train_ahaab_atom(**kwargs):
             classifier=""
             for x,y in train_dataset:
                 if y!=0 and y!=1:
-                    print(y)
-                    print(x)
-                    sys.exit()
                     classifier="regression"
                     formats.notice("Dataset containing pKd values detected. Regression classifier will be trained.")
                     break

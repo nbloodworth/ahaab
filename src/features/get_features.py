@@ -8,13 +8,12 @@ ahaab/
 
 Submodule list:
 
-    === get_features_atom ===
+    get_features_atom
 '''
 
 # AHAAB module imports
 from tools import utils
 from tools import formats
-from tools.handle_input import handle_featurize_input
 from features import atom_features
 
 # rdkit imports
@@ -30,12 +29,6 @@ import pandas as pd
 # Python base libraries
 import os
 import json
-from pathlib import Path
-import sys
-
-def get_features_for_residue():
-
-    return
 
 def get_features_atom(file_list,features,get_metadata=False,update_features=False,toprint=True,output_suffix=""):
     '''

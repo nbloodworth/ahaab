@@ -8,7 +8,20 @@ ahaab/
 
 Submodule list:
 
-    === atom_hbonds ===
+    atom_hbonds
+    atom_hydrophobic
+    atom_electrostatic
+    atom_VdW
+    atom_pipi
+    atom_catpi
+
+Variables:
+
+    bin_default
+    > Contains default distance bin values for creating discretized distances
+    scope_default
+    > "res" or "pep"; calculates features for each residue ("res") or over
+      the entire peptide ("pep")
 '''
 # AHAAB import
 from tools import formats

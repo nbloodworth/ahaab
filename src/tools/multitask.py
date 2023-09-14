@@ -2,13 +2,15 @@
 AHAAB multitask submodule
 Part of the AHAAB features module
 
-ahaab/
+ahaab/src
 └──tools
     └──multitask.py
 
 Submodule list:
 
-    === batch_files ===
+    batch_files
+    recombine_features
+    multiprocess_batches
 '''
 
 # AHAAB module imports
@@ -104,7 +106,9 @@ def multiprocess_batches(batch_list, feature_list, get_metadata=False):
     Keyword arguments:
 
     Returns:
-    > Writes an AHAAB features file
+    > Given a list of batches and features, uses multiprocessing
+      to produce an AHAAB_atom_features.csv file. Does not currently
+      work on Windows machines.
     '''
 
     # Get file suffixes and assign to pool

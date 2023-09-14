@@ -2,8 +2,8 @@
 AHAAB utils submodule
 Part of the AHAAB tools module
 
-ahaab/
-└──tools
+ahaab/src/
+└──tools/
     └──utils.py
 
 Submodule list:
