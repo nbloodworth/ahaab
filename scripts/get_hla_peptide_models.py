@@ -22,7 +22,16 @@ For example: HLA-A0201_109418.pdb
 
 Usage examples:
 
-    1. 
+    $ python get_hla_peptide_models.py \\
+        --silent_dir path/to/rosetta/silent/files \\
+        --model_dir path/to/existing/hla-epitope/pdbs \\
+        --hla_allele A0101
+    
+    > Will find all silent files in silent_dir, extract the
+      lowest (best) scoring decoy, and save it to model_dir
+      with the filename HLA-A0101_<silent_file_name>. By
+      convention, <silent_file_name> is assumed to be the
+      IEDB epitope ID for the epitope in question.
  '''
 # python
 import argparse
