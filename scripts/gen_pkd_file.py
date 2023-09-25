@@ -300,6 +300,7 @@ def get_iedb_pKd_data(**kwargs):
         iedb_pKd_data_fn=use_custom_iedb
     else:
         iedb_pKd_data_fn=fetch_iedb()
+        header=1
 
     # Next, read in the iedb data, keeping only values that match with our HLA-epitope ID keys.
     iedb_data=pd.DataFrame()
