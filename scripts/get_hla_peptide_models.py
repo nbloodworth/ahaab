@@ -38,7 +38,6 @@ import argparse
 from pathlib import Path
 import subprocess
 import os
-import sys
 import shutil
 
 # pandas
@@ -80,7 +79,7 @@ def get_new_pdbs(**kwargs):
         print(f"No new HLA-epitope models found!")
         return
 
-    print(f"Found {len(filenames_to_create)} new HLA-epitope models.\nFound {len(existing_filenames)-len(filenames_to_create)} existing HLA-epitope models.")
+    print(f"Found {len(filenames_to_create)} new HLA-epitope models.\nFound {len(existing_filenames)} existing HLA-epitope models.")
     args=[rosetta_extract_pdbs]
     for i,f in enumerate(filenames_to_create):
         # First, get the best scoring decoy from the silent file (extract score data using pandas):
@@ -107,6 +106,8 @@ def get_new_pdbs(**kwargs):
         subprocess.run(tmp_args)
         # And move it to the existing models directory:
         shutil.move(os.path.join(os.getcwd(),tag+".pdb"),os.path.join(model_dir,f))
+        if Path(os.path.join(os.getcwd(),tag+".pdb")).is_file():
+            os.remove(os.path.join(os.getcwd(),tag+".pdb"))
 
     return
 
